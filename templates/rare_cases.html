@@ -1,0 +1,394 @@
+{% extends "base.html" %}
+
+{% block title %}Rare Cases - MediScript Pro{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-1">
+                        <i class="fas fa-star text-warning me-2"></i>Rare Cases
+                    </h1>
+                    <p class="text-muted">Special medical cases marked for reference and research</p>
+                </div>
+                <div>
+                    <span class="badge bg-warning text-dark fs-6">{{ cases|length }} Cases</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if cases %}
+        <div class="row">
+            {% for case in cases %}
+            <div class="col-lg-6 col-xl-4 mb-4">
+                <div class="card rare-case-card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0">{{ case.prescription_id }}</h6>
+                            <small class="text-muted">{{ case.created_at.strftime('%b %d, %Y') }}</small>
+                        </div>
+                        <div class="rare-case-icon">
+                            <i class="fas fa-star text-warning"></i>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Patient Info -->
+                        <div class="patient-summary mb-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="patient-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="ms-2">
+                                    <h6 class="mb-0">{{ case.patient.name }}</h6>
+                                    <small class="text-muted">
+                                        {% if case.patient.age %}{{ case.patient.age }}y{% endif %}
+                                        {% if case.patient.gender %} • {{ case.patient.gender }}{% endif %}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="patient-id">
+                                <span class="badge bg-light text-dark">{{ case.patient.patient_id }}</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Medical Details -->
+                        {% if case.chief_complaint %}
+                        <div class="medical-info mb-3">
+                            <h6 class="text-primary mb-2">
+                                <i class="fas fa-comments me-1"></i>Chief Complaint
+                            </h6>
+                            <p class="mb-0 small">{{ case.chief_complaint[:100] }}{% if case.chief_complaint|length > 100 %}...{% endif %}</p>
+                        </div>
+                        {% endif %}
+                        
+                        {% if case.diagnosis %}
+                        <div class="medical-info mb-3">
+                            <h6 class="text-success mb-2">
+                                <i class="fas fa-diagnoses me-1"></i>Diagnosis
+                            </h6>
+                            <p class="mb-0 small">{{ case.diagnosis[:100] }}{% if case.diagnosis|length > 100 %}...{% endif %}</p>
+                        </div>
+                        {% endif %}
+                        
+                        {% if case.notes %}
+                        <div class="medical-info mb-3">
+                            <h6 class="text-info mb-2">
+                                <i class="fas fa-sticky-note me-1"></i>Notes
+                            </h6>
+                            <p class="mb-0 small">{{ case.notes[:80] }}{% if case.notes|length > 80 %}...{% endif %}</p>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Follow-up Info -->
+                        {% if case.follow_up_date %}
+                        <div class="follow-up mb-3">
+                            <span class="badge bg-info">
+                                <i class="fas fa-calendar-check me-1"></i>
+                                Follow-up: {{ case.follow_up_date.strftime('%b %d, %Y') }}
+                            </span>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Tags/Keywords -->
+                        <div class="case-tags mb-3">
+                            <span class="badge bg-warning text-dark">Rare Case</span>
+                            {% if case.diagnosis %}
+                                {% set diagnosis_words = case.diagnosis.split()[:2] %}
+                                {% for word in diagnosis_words %}
+                                    {% if word|length > 3 %}
+                                        <span class="badge bg-secondary">{{ word.title() }}</span>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1"></i>
+                                {{ case.created_at.strftime('%I:%M %p') }}
+                            </small>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('patient_detail', patient_id=case.patient.id) }}" 
+                                   class="btn btn-outline-primary" title="View Patient">
+                                    <i class="fas fa-user"></i>
+                                </a>
+                                <button class="btn btn-outline-info" 
+                                        onclick="viewCaseDetails({{ case.id }})" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-success" 
+                                        onclick="downloadCase('{{ case.prescription_id }}')" title="Download">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                <a href="{{ url_for('new_prescription') }}?patient_id={{ case.patient.id }}" 
+                                   class="btn btn-outline-warning" title="New Prescription">
+                                    <i class="fas fa-plus"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Statistics -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-chart-bar me-2"></i>Rare Cases Statistics
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-3">
+                                <div class="stat-item">
+                                    <h3 class="text-warning">{{ cases|length }}</h3>
+                                    <p class="text-muted mb-0">Total Rare Cases</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-item">
+                                    <h3 class="text-info">
+                                        {% set this_month_cases = cases|selectattr('created_at', 'gt', (moment().subtract(30, 'days'))) %}
+                                        {{ this_month_cases|list|length }}
+                                    </h3>
+                                    <p class="text-muted mb-0">This Month</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-item">
+                                    <h3 class="text-success">
+                                        {{ cases|map(attribute='patient')|unique|list|length }}
+                                    </h3>
+                                    <p class="text-muted mb-0">Unique Patients</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-item">
+                                    <h3 class="text-primary">
+                                        {{ cases|selectattr('follow_up_date')|list|length }}
+                                    </h3>
+                                    <p class="text-muted mb-0">With Follow-up</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    {% else %}
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-star fa-3x text-muted mb-4"></i>
+                        <h4 class="text-muted mb-3">No Rare Cases Yet</h4>
+                        <p class="text-muted mb-4">
+                            When you encounter unusual or interesting medical cases, mark them as "Rare Cases" 
+                            during prescription creation. They will appear here for future reference and research.
+                        </p>
+                        <a href="{{ url_for('new_prescription') }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Create New Prescription
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Case Details Modal -->
+<div class="modal fade" id="caseDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-star text-warning me-2"></i>Rare Case Details
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="caseDetailsContent">
+                <!-- Content will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .main-content {
+        margin-top: 76px;
+        background-color: #f8f9fa;
+        min-height: calc(100vh - 76px);
+    }
+    
+    .rare-case-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(255, 193, 7, 0.2);
+        transition: all 0.3s ease;
+        border-left: 4px solid #ffc107;
+    }
+    
+    .rare-case-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(255, 193, 7, 0.3);
+    }
+    
+    .rare-case-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(45deg, #ffc107, #ff8f00);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 18px;
+    }
+    
+    .patient-avatar {
+        width: 40px;
+        height: 40px;
+        background: #4CAF50;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+    
+    .patient-summary {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 15px;
+    }
+    
+    .medical-info h6 {
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+    
+    .medical-info p {
+        background: #f8f9fa;
+        padding: 8px 12px;
+        border-radius: 6px;
+        margin: 0;
+        line-height: 1.4;
+    }
+    
+    .case-tags .badge {
+        margin-right: 5px;
+        margin-bottom: 5px;
+    }
+    
+    .stat-item {
+        padding: 20px;
+        background: white;
+        border-radius: 10px;
+        margin: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .stat-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    
+    .stat-item h3 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+    
+    .btn-group-sm > .btn {
+        border-radius: 6px;
+        margin: 0 1px;
+    }
+    
+    .card-footer {
+        background-color: rgba(248, 249, 250, 0.5);
+        border-top: 1px solid rgba(0,0,0,0.05);
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function viewCaseDetails(caseId) {
+        // This would fetch and display detailed case information
+        document.getElementById('caseDetailsContent').innerHTML = `
+            <div class="text-center py-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3">Loading case details...</p>
+            </div>
+        `;
+        
+        const modal = new bootstrap.Modal(document.getElementById('caseDetailsModal'));
+        modal.show();
+        
+        // Simulate loading - in real implementation, this would be an AJAX call
+        setTimeout(() => {
+            document.getElementById('caseDetailsContent').innerHTML = `
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Detailed case view functionality would be implemented here. 
+                    This would show complete prescription details, canvas drawings, and full medical information.
+                </div>
+                <p>Case ID: <strong>${caseId}</strong></p>
+                <p>This feature would include:</p>
+                <ul>
+                    <li>Complete medical history</li>
+                    <li>Prescription canvas images</li>
+                    <li>Treatment timeline</li>
+                    <li>Follow-up notes</li>
+                    <li>Related cases</li>
+                </ul>
+            `;
+        }, 1500);
+    }
+    
+    function downloadCase(prescriptionId) {
+        alert('Downloading case: ' + prescriptionId + '\n\nThis would generate and download a comprehensive PDF report of the rare case.');
+    }
+    
+    // Add some visual flair
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.rare-case-card');
+        cards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+            card.classList.add('fade-in-up');
+        });
+    });
+</script>
+
+<style>
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .fade-in-up {
+        animation: fadeInUp 0.6s ease-out forwards;
+        opacity: 0;
+    }
+</style>
+{% endblock %}

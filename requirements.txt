@@ -1,0 +1,12 @@
+Flask
+Flask-SQLAlchemy
+Flask-Login
+Flask-Migrate
+Authlib
+Werkzeug
+Pillow
+pdfkit
+python-dotenv
+requests
+cryptography
+PyJWT

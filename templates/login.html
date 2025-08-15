@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - MediScript Pro</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/fontawesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/solid.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/brands.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/regular.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login_style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="login-card">
+                    <div class="login-header">
+                        <div class="brand-logo">
+                            <i class="fas fa-stethoscope"></i>
+                        </div>
+                        <h2 class="mb-0">MediScript Pro</h2>
+                        <p class="mb-0">Digital Prescription System</p>
+                    </div>
+                    
+                    <div class="login-body">
+                        <h4 class="text-center mb-4">Welcome Back!</h4>
+                        <p class="text-center text-muted mb-4">Sign in to access your dashboard</p>
+                        
+                        <!-- Flash Messages -->
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                {% for category, message in messages %}
+                                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+                        
+                        <!-- Social Login Buttons -->
+                        <a href="{{ url_for('oauth_login', provider='google') }}" class="social-btn google-btn">
+                            <i class="fab fa-google"></i>
+                            Continue with Google
+                        </a>
+                        
+                        <a href="{{ url_for('oauth_login', provider='facebook') }}" class="social-btn facebook-btn">
+                            <i class="fab fa-facebook-f"></i>
+                            Continue with Facebook
+                        </a>
+                        
+                        <div class="divider">
+                            <span>Secure Login</span>
+                        </div>
+                        
+                        <div class="text-center">
+                            <small class="text-muted">
+                                <i class="fas fa-shield-alt me-1"></i>
+                                Your data is protected with enterprise-grade security
+                            </small>
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <a href="{{ url_for('index') }}" class="text-decoration-none">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Home
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Features Preview -->
+                <div class="text-center mt-4 text-white">
+                    <h5>✓ Digital Canvas Drawing</h5>
+                    <h5>✓ Patient Management</h5>
+                    <h5>✓ PDF Generation</h5>
+                    <h5>✓ Secure Cloud Storage</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

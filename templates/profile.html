@@ -1,0 +1,313 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - MediScript Pro{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h3 mb-4">Doctor Profile</h1>
+        </div>
+    </div>
+    
+    <form method="POST" action="{{ url_for('update_profile') }}" enctype="multipart/form-data">
+        <div class="row">
+            <!-- Personal Information -->
+            <div class="col-lg-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-user me-2"></i>Personal Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Full Name *</label>
+                            <input type="text" class="form-control" name="full_name" 
+                                   value="{{ profile.full_name or '' }}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Designation *</label>
+                            <input type="text" class="form-control" name="designation" 
+                                   value="{{ profile.designation or '' }}" 
+                                   placeholder="e.g., MBBS, MD" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Specialization</label>
+                            <input type="text" class="form-control" name="specialization" 
+                                   value="{{ profile.specialization or '' }}" 
+                                   placeholder="e.g., Cardiology, General Medicine">
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">License Number</label>
+                                    <input type="text" class="form-control" name="license_number" 
+                                           value="{{ profile.license_number or '' }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Experience (Years)</label>
+                                    <input type="number" class="form-control" name="experience_years" 
+                                           value="{{ profile.experience_years or '' }}" min="0">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" name="phone" 
+                                   value="{{ profile.phone or '' }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Education</label>
+                            <textarea class="form-control" name="education" rows="3" 
+                                      placeholder="List your educational qualifications">{{ profile.education or '' }}</textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Certifications</label>
+                            <textarea class="form-control" name="certifications" rows="3" 
+                                      placeholder="List your certifications and additional qualifications">{{ profile.certifications or '' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Hospital Information -->
+            <div class="col-lg-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-hospital me-2"></i>Hospital Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Hospital Name *</label>
+                            <input type="text" class="form-control" name="hospital_name" 
+                                   value="{{ profile.hospital_name or '' }}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Hospital Address</label>
+                            <textarea class="form-control" name="hospital_address" rows="3">{{ profile.hospital_address or '' }}</textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Hospital Phone</label>
+                                    <input type="tel" class="form-control" name="hospital_phone" 
+                                           value="{{ profile.hospital_phone or '' }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Hospital Email</label>
+                                    <input type="email" class="form-control" name="hospital_email" 
+                                           value="{{ profile.hospital_email or '' }}">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Hospital Logo</label>
+                            <input type="file" class="form-control" name="hospital_logo" accept="image/*">
+                            {% if profile.hospital_logo %}
+                                <div class="mt-2">
+                                    <small class="text-muted">Current logo:</small>
+                                    <img src="{{ url_for('uploaded_file', filename=profile.hospital_logo) }}" 
+                                         alt="Hospital Logo" class="img-thumbnail mt-1" width="100">
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Digital Signature -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-signature me-2"></i>Digital Signature
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Draw Your Signature</label>
+                            <div class="signature-container">
+                                <canvas id="signature-canvas" width="400" height="150" 
+                                        class="border border-2 border-dashed rounded"></canvas>
+                                <input type="hidden" name="signature_data" id="signature-data">
+                            </div>
+                            <div class="mt-2">
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearSignature()">
+                                    <i class="fas fa-eraser me-1"></i>Clear Signature
+                                </button>
+                            </div>
+                            {% if profile.signature %}
+                                <div class="mt-2">
+                                    <small class="text-muted">Current signature:</small><br>
+                                    <img src="{{ profile.signature }}" alt="Current Signature" class="border mt-1" height="75">
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Save Button -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save me-2"></i>Save Profile
+                        </button>
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary btn-lg ms-3">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .main-content {
+        margin-top: 76px;
+        background-color: #f8f9fa;
+        min-height: calc(100vh - 76px);
+    }
+    
+    .card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .card-header {
+        background-color: white;
+        border-bottom: 1px solid #eee;
+        border-radius: 15px 15px 0 0 !important;
+    }
+    
+    .signature-container {
+        display: flex;
+        justify-content: center;
+    }
+    
+    #signature-canvas {
+        cursor: crosshair;
+        background-color: white;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Digital Signature Functionality
+    let signatureCanvas = document.getElementById('signature-canvas');
+    let signatureCtx = signatureCanvas.getContext('2d');
+    let isSignatureDrawing = false;
+    
+    // Load existing signature if available
+    {% if profile.signature %}
+        let existingSignature = "{{ profile.signature }}";
+        let img = new Image();
+        img.onload = function() {
+            signatureCtx.drawImage(img, 0, 0, signatureCanvas.width, signatureCanvas.height);
+        };
+        img.src = existingSignature;
+    {% endif %}
+    
+    // Mouse events for signature
+    signatureCanvas.addEventListener('mousedown', startSignatureDrawing);
+    signatureCanvas.addEventListener('mousemove', drawSignature);
+    signatureCanvas.addEventListener('mouseup', stopSignatureDrawing);
+    
+    // Touch events for mobile
+    signatureCanvas.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const mouseEvent = new MouseEvent('mousedown', {
+            clientX: touch.clientX,
+            clientY: touch.clientY
+        });
+        signatureCanvas.dispatchEvent(mouseEvent);
+    });
+    
+    signatureCanvas.addEventListener('touchmove', function(e) {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const mouseEvent = new MouseEvent('mousemove', {
+            clientX: touch.clientX,
+            clientY: touch.clientY
+        });
+        signatureCanvas.dispatchEvent(mouseEvent);
+    });
+    
+    signatureCanvas.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        const mouseEvent = new MouseEvent('mouseup', {});
+        signatureCanvas.dispatchEvent(mouseEvent);
+    });
+    
+    function getSignatureCoordinates(e) {
+        const rect = signatureCanvas.getBoundingClientRect();
+        return {
+            x: e.clientX - rect.left,
+            y: e.clientY - rect.top
+        };
+    }
+    
+    function startSignatureDrawing(e) {
+        isSignatureDrawing = true;
+        const coords = getSignatureCoordinates(e);
+        
+        signatureCtx.beginPath();
+        signatureCtx.moveTo(coords.x, coords.y);
+        signatureCtx.strokeStyle = '#000000';
+        signatureCtx.lineWidth = 2;
+        signatureCtx.lineCap = 'round';
+        signatureCtx.lineJoin = 'round';
+    }
+    
+    function drawSignature(e) {
+        if (!isSignatureDrawing) return;
+        
+        const coords = getSignatureCoordinates(e);
+        signatureCtx.lineTo(coords.x, coords.y);
+        signatureCtx.stroke();
+    }
+    
+    function stopSignatureDrawing() {
+        if (isSignatureDrawing) {
+            isSignatureDrawing = false;
+            // Save signature data
+            document.getElementById('signature-data').value = signatureCanvas.toDataURL();
+        }
+    }
+    
+    function clearSignature() {
+        signatureCtx.clearRect(0, 0, signatureCanvas.width, signatureCanvas.height);
+        document.getElementById('signature-data').value = '';
+    }
+    
+    // Form submission - ensure signature is saved
+    document.querySelector('form').addEventListener('submit', function() {
+        if (signatureCanvas.toDataURL() !== 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==') {
+            document.getElementById('signature-data').value = signatureCanvas.toDataURL();
+        }
+    });
+</script>
+{% endblock %}

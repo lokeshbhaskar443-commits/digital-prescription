@@ -1,0 +1,266 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - MediScript Pro{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-1">Welcome back, {{ current_user.name }}!</h1>
+                    <p class="text-muted">Here's what's happening in your practice today.</p>
+                </div>
+                <div>
+                    <a href="{{ url_for('new_prescription') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-plus me-2"></i>New Prescription
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card stat-card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="h2 fw-bold mb-0 text-black">{{ stats.total_patients }}</div>
+                            <div class="opacity-75 text-black">Total Patients</div>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-users fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card stat-card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="h2 fw-bold mb-0 text-black">{{ stats.total_prescriptions }}</div>
+                            <div class="opacity-75 text-black">Prescriptions</div>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-prescription fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card stat-card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="h2 fw-bold mb-0 text-black">{{ stats.starred_patients }}</div>
+                            <div class="opacity-75 text-black">Starred Patients</div>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-star fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card stat-card bg-danger text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="h2 fw-bold mb-0 text-black">{{ stats.rare_cases }}</div>
+                            <div class="opacity-75 text-black">Rare Cases</div>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-exclamation-triangle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <a href="{{ url_for('new_prescription') }}" class="btn btn-outline-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3">
+                                <i class="fas fa-plus-circle fa-2x mb-2"></i>
+                                <span>New Prescription</span>
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{{ url_for('patients') }}" class="btn btn-outline-info w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3">
+                                <i class="fas fa-users fa-2x mb-2"></i>
+                                <span>View Patients</span>
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{{ url_for('rare_cases') }}" class="btn btn-outline-warning w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3">
+                                <i class="fas fa-star fa-2x mb-2"></i>
+                                <span>Rare Cases</span>
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{{ url_for('profile') }}" class="btn btn-outline-secondary w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3">
+                                <i class="fas fa-user-cog fa-2x mb-2"></i>
+                                <span>Edit Profile</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Recent Prescriptions</h5>
+                    <a href="{{ url_for('prescription_history') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if recent_prescriptions %}
+                        <div class="list-group list-group-flush">
+                            {% for prescription in recent_prescriptions %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">{{ prescription.patient.name }}</h6>
+                                    <p class="mb-1 text-muted small">{{ prescription.prescription_id }}</p>
+                                    <small class="text-muted">{{ prescription.created_at.strftime('%b %d, %Y at %I:%M %p') }}</small>
+                                </div>
+                                <div>
+                                    {% if prescription.is_rare_case %}
+                                        <span class="badge bg-warning">Rare Case</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-prescription fa-3x mb-3"></i>
+                            <p>No prescriptions yet. Create your first one!</p>
+                            <a href="{{ url_for('new_prescription') }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>New Prescription
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Recent Patients</h5>
+                    <a href="{{ url_for('patients') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if recent_patients %}
+                        <div class="list-group list-group-flush">
+                            {% for patient in recent_patients %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">
+                                        {{ patient.name }}
+                                        {% if patient.is_starred %}
+                                            <i class="fas fa-star text-warning"></i>
+                                        {% endif %}
+                                    </h6>
+                                    <p class="mb-1 text-muted small">{{ patient.patient_id }}</p>
+                                    <small class="text-muted">
+                                        {{ patient.age }} years, {{ patient.gender }}
+                                        {% if patient.phone %}
+                                            | {{ patient.phone }}
+                                        {% endif %}
+                                    </small>
+                                </div>
+                                <div>
+                                    <a href="{{ url_for('patient_detail', patient_id=patient.id) }}" class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-users fa-3x mb-3"></i>
+                            <p>No patients yet. Add them while creating prescriptions!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .main-content {
+        margin-top: 76px;
+        background-color: #f8f9fa;
+        min-height: calc(100vh - 76px);
+    }
+    
+    .stat-card {
+        border: none;
+        border-radius: 15px;
+        transition: transform 0.2s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .stat-icon {
+        opacity: 0.7;
+        color: black;
+    }
+    
+    .card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        color: black;
+    }
+    
+    .card-header {
+        background-color: white;
+        border-bottom: 1px solid #eee;
+        border-radius: 15px 15px 0 0 !important;
+    }
+    
+    .list-group-item {
+        border-left: none;
+        border-right: none;
+        padding: 1rem 0;
+    }
+    
+    .list-group-item:first-child {
+        border-top: none;
+    }
+    
+    .list-group-item:last-child {
+        border-bottom: none;
+    }
+</style>
+{% endblock %}

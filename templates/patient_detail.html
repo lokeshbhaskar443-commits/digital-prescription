@@ -1,0 +1,436 @@
+{% extends "base.html" %}
+
+{% block title %}{{ patient.name }} - Patient Details{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="{{ url_for('patients') }}">Patients</a></li>
+                            <li class="breadcrumb-item active">{{ patient.name }}</li>
+                        </ol>
+                    </nav>
+                    <h1 class="h3 mb-0">
+                        {{ patient.name }}
+                        {% if patient.is_starred %}
+                            <i class="fas fa-star text-warning ms-2"></i>
+                        {% endif %}
+                    </h1>
+                </div>
+                <div>
+                    <a href="{{ url_for('new_prescription') }}?patient_id={{ patient.id }}" class="btn btn-success">
+                        <i class="fas fa-plus me-2"></i>New Prescription
+                    </a>
+                    <button class="btn btn-outline-warning ms-2" 
+                            onclick="toggleStar({{ patient.id }}, {{ patient.is_starred|lower }})">
+                        <i class="fas fa-star me-1"></i>
+                        {% if patient.is_starred %}Remove Star{% else %}Add Star{% endif %}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Patient Information -->
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-user me-2"></i>Patient Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="patient-info-item">
+                        <strong>Patient ID:</strong>
+                        <span class="badge bg-primary">{{ patient.patient_id }}</span>
+                    </div>
+                    
+                    {% if patient.age %}
+                    <div class="patient-info-item">
+                        <strong>Age:</strong>
+                        <span>{{ patient.age }} years</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if patient.gender %}
+                    <div class="patient-info-item">
+                        <strong>Gender:</strong>
+                        <span class="badge bg-secondary">{{ patient.gender }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if patient.phone %}
+                    <div class="patient-info-item">
+                        <strong>Phone:</strong>
+                        <a href="tel:{{ patient.phone }}" class="text-decoration-none">
+                            <i class="fas fa-phone me-1"></i>{{ patient.phone }}
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    {% if patient.email %}
+                    <div class="patient-info-item">
+                        <strong>Email:</strong>
+                        <a href="mailto:{{ patient.email }}" class="text-decoration-none">
+                            <i class="fas fa-envelope me-1"></i>{{ patient.email }}
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    {% if patient.blood_group %}
+                    <div class="patient-info-item">
+                        <strong>Blood Group:</strong>
+                        <span class="badge bg-danger">{{ patient.blood_group }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if patient.emergency_contact %}
+                    <div class="patient-info-item">
+                        <strong>Emergency Contact:</strong>
+                        <a href="tel:{{ patient.emergency_contact }}" class="text-decoration-none">
+                            <i class="fas fa-phone-square me-1"></i>{{ patient.emergency_contact }}
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="patient-info-item">
+                        <strong>Registered:</strong>
+                        <span>{{ patient.created_at.strftime('%B %d, %Y') }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            {% if patient.address %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-map-marker-alt me-2"></i>Address
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0">{{ patient.address }}</p>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if patient.allergies %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0 text-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Allergies
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        {{ patient.allergies }}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if patient.medical_history %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-history me-2"></i>Medical History
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0">{{ patient.medical_history }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Prescription History -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-prescription me-2"></i>Prescription History
+                        <span class="badge bg-primary ms-2">{{ prescriptions|length }}</span>
+                    </h5>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-filter me-1"></i>Filter
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="filterPrescriptions('all')">All Prescriptions</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="filterPrescriptions('recent')">Last 30 Days</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="filterPrescriptions('rare')">Rare Cases</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if prescriptions %}
+                        <div class="timeline">
+                            {% for prescription in prescriptions %}
+                            <div class="timeline-item" data-date="{{ prescription.created_at.isoformat() }}" data-rare="{{ prescription.is_rare_case|lower }}">
+                                <div class="timeline-marker">
+                                    <i class="fas fa-prescription"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="mb-1">
+                                                {{ prescription.prescription_id }}
+                                                {% if prescription.is_rare_case %}
+                                                    <span class="badge bg-warning ms-2">Rare Case</span>
+                                                {% endif %}
+                                            </h6>
+                                            <p class="text-muted small mb-2">
+                                                {{ prescription.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+                                            </p>
+                                            
+                                            {% if prescription.chief_complaint %}
+                                            <div class="mb-2">
+                                                <strong>Chief Complaint:</strong>
+                                                <p class="mb-1">{{ prescription.chief_complaint }}</p>
+                                            </div>
+                                            {% endif %}
+                                            
+                                            {% if prescription.diagnosis %}
+                                            <div class="mb-2">
+                                                <strong>Diagnosis:</strong>
+                                                <p class="mb-1">{{ prescription.diagnosis }}</p>
+                                            </div>
+                                            {% endif %}
+                                            
+                                            {% if prescription.notes %}
+                                            <div class="mb-2">
+                                                <strong>Notes:</strong>
+                                                <p class="mb-1">{{ prescription.notes }}</p>
+                                            </div>
+                                            {% endif %}
+                                            
+                                            {% if prescription.follow_up_date %}
+                                            <div class="mb-2">
+                                                <strong>Follow-up:</strong>
+                                                <span class="badge bg-info">{{ prescription.follow_up_date.strftime('%B %d, %Y') }}</span>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                Actions
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li><a class="dropdown-item" href="#" onclick="viewPrescription('{{ prescription.prescription_id }}')">
+                                                    <i class="fas fa-eye me-2"></i>View Details
+                                                </a></li>
+                                                <li><a class="dropdown-item" href="#" onclick="downloadPrescription('{{ prescription.prescription_id }}')">
+                                                    <i class="fas fa-download me-2"></i>Download PDF
+                                                </a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item" href="{{ url_for('new_prescription') }}?patient_id={{ patient.id }}">
+                                                    <i class="fas fa-copy me-2"></i>Create Similar
+                                                </a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-prescription fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No prescriptions yet</h5>
+                            <p class="text-muted">Create the first prescription for this patient.</p>
+                            <a href="{{ url_for('new_prescription') }}?patient_id={{ patient.id }}" class="btn btn-success">
+                                <i class="fas fa-plus me-2"></i>Create First Prescription
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .main-content {
+        margin-top: 76px;
+        background-color: #f8f9fa;
+        min-height: calc(100vh - 76px);
+    }
+    
+    .patient-info-item {
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .patient-info-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+    
+    .patient-info-item strong {
+        display: block;
+        margin-bottom: 5px;
+        color: #495057;
+        font-size: 0.9rem;
+    }
+    
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+    
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 15px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: linear-gradient(to bottom, #4CAF50, #2196F3);
+    }
+    
+    .timeline-item {
+        position: relative;
+        margin-bottom: 30px;
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .timeline-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    
+    .timeline-marker {
+        position: absolute;
+        left: -45px;
+        top: 20px;
+        width: 30px;
+        height: 30px;
+        background: #4CAF50;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 12px;
+        box-shadow: 0 2px 10px rgba(76, 175, 80, 0.3);
+    }
+    
+    .timeline-content h6 {
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .timeline-content strong {
+        color: #4CAF50;
+        font-size: 0.9rem;
+    }
+    
+    .breadcrumb {
+        background: none;
+        padding: 0;
+        margin-bottom: 10px;
+    }
+    
+    .breadcrumb-item + .breadcrumb-item::before {
+        content: "›";
+        color: #6c757d;
+    }
+    
+    .breadcrumb-item a {
+        color: #4CAF50;
+        text-decoration: none;
+    }
+    
+    .breadcrumb-item a:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function toggleStar(patientId, isCurrentlyStarred) {
+        fetch(`/toggle_star_patient/${patientId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error updating patient star status');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error updating patient star status');
+        });
+    }
+    
+    function filterPrescriptions(filter) {
+        const items = document.querySelectorAll('.timeline-item');
+        const now = new Date();
+        const thirtyDaysAgo = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
+        
+        items.forEach(item => {
+            const itemDate = new Date(item.dataset.date);
+            const isRare = item.dataset.rare === 'true';
+            let show = true;
+            
+            switch(filter) {
+                case 'recent':
+                    show = itemDate >= thirtyDaysAgo;
+                    break;
+                case 'rare':
+                    show = isRare;
+                    break;
+                case 'all':
+                default:
+                    show = true;
+                    break;
+            }
+            
+            if (show) {
+                item.style.display = 'block';
+                item.style.animation = 'fadeInUp 0.5s ease';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+    
+    function viewPrescription(prescriptionId) {
+        alert('View prescription functionality would be implemented here for: ' + prescriptionId);
+    }
+    
+    function downloadPrescription(prescriptionId) {
+        alert('Download prescription functionality would be implemented here for: ' + prescriptionId);
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</script>
+{% endblock %}

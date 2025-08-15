@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediScript Pro - Digital Prescription System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/fontawesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/solid.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/landing_style.css') }}">
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <div class="hero-content bounce-in">
+                        <h1 class="display-4 fw-bold mb-4">
+                            <i class="fas fa-stethoscope me-3"></i>
+                            MediScript Pro
+                        </h1>
+                        <p class="lead mb-5">
+                            The ultimate digital prescription system for modern healthcare professionals. 
+                            Create, manage, and store prescriptions with advanced digital tools and secure cloud storage.
+                        </p>
+                        <div class="d-flex gap-3 flex-wrap">
+                            <a href="{{ url_for('login') }}" class="btn btn-custom btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i>Get Started
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="text-center">
+                        <i class="fas fa-laptop-medical hero-icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="container">
+            <div class="row text-center mb-5">
+                <div class="col-lg-8 mx-auto">
+                    <div class="section-header">
+                        <h2 class="display-5 fw-bold mb-3">Why Choose MediScript Pro?</h2>
+                        <p class="lead text-muted">Advanced features designed for healthcare professionals</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card text-center">
+                        <div class="feature-icon">
+                            <i class="fas fa-digital-tachograph"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Digital Canvas</h4>
+                        <p>
+                            Advanced drawing tools with multiple pages, colors, and digital signature support.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card text-center">
+                        <div class="feature-icon">
+                            <i class="fas fa-users-cog"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Patient Management</h4>
+                        <p>
+                            Comprehensive patient database with history tracking and starred patients.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card text-center">
+                        <div class="feature-icon">
+                            <i class="fas fa-file-pdf"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">PDF Generation</h4>
+                        <p>
+                            Professional PDF prescriptions with your branding and digital signature.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card text-center">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Secure Login</h4>
+                        <p>
+                            OAuth integration with Google and Facebook for secure authentication.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card text-center">
+                        <div class="feature-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Rare Cases</h4>
+                        <p>
+                            Mark and track rare medical cases for future reference and research.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card text-center">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Analytics Dashboard</h4>
+                        <p>
+                            Comprehensive dashboard with statistics and recent activity tracking.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container text-center">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <div class="cta-content">
+                        <h2 class="display-6 fw-bold mb-3">Ready to Transform Your Practice?</h2>
+                        <p class="lead mb-4">
+                            Join thousands of healthcare professionals using MediScript Pro for efficient prescription management.
+                        </p>
+                        <a href="{{ url_for('login') }}" class="btn btn-custom btn-lg">
+                            <i class="fas fa-rocket me-2"></i>Start Free Today
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container text-center">
+            <p class="mb-0">&copy; 2024 MediScript Pro. All rights reserved. 🏥</p>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
